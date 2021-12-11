@@ -19,10 +19,12 @@ test = [
          Const "succ" [Const "two" []]]))
     ]
 
-source = "succ( x== y,opair())"
+source = "superb(x, y ) = succ( x== y in x,opair(x,\n   y));"
+-- Extra whitespace is to make sure the parser doesn't get confused by
+-- the newline.
 
 main :: IO ()
 main = do
     -- input <- readLn
     -- print $ (fromSet (run test []) :: (Int, Int))
-    print(readP_to_S term source)
+    print(readP_to_S program source)

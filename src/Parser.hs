@@ -89,3 +89,33 @@ noinfix = do
         skipSpaces
         string "}"
         return (Repl c t1 t2)
+
+{-
+Program ::= (Declare ";")*
+Declare ::= IDENT "(" ((IDENT ",")* IDENT)? ")" "=" Term
+-}
+
+declare :: ReadP (ConstName, ([ConstName], Term))
+declare = do
+    skipSpaces
+    c <- ident
+    skipSpaces
+    char '('
+    cs <- sepBy (skipSpaces >> ident) (skipSpaces >> char ',')
+    skipSpaces
+    char ')'
+    skipSpaces
+    char '='
+    t <- term
+    return (c, (cs, t))
+
+program :: ReadP Program
+program = do 
+    p <- many (do
+        d <- declare
+        skipSpaces
+        char ';'
+        return d)
+    skipSpaces
+    eof
+    return p
