@@ -42,6 +42,9 @@ comprehension bound pred = FromNat $ sum $ map (2^)
 power :: Set -> Set
 power = fromList . map fromList . subsequences . elements
 
+union :: Set -> Set
+union = fromList . nub . concatMap elements . elements
+
 true :: Set
 true = power empty
 

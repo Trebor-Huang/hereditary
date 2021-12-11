@@ -9,6 +9,7 @@ data Term
     | Const ConstName [Term]
     | Empty
     | Power Term
+    | Union Term
     | Eq Term Term
     | Elem Term Term
     | If Term Term Term
@@ -41,6 +42,7 @@ eval env (Const c ts) = do
           updates (zip vs xs) $ eval env tm
 eval env Empty = return empty
 eval env (Power x) = power <$> eval env x
+eval env (Union x) = union <$> eval env x
 eval env (Eq x y) = do
     x' <- eval env x
     y' <- eval env y
