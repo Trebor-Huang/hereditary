@@ -8,10 +8,16 @@ test = [
     ("two", ([], Power (Power Empty))),
     ("pair", (["x", "y"], Repl "z" (If (Var "z") (Var "x") (Var "y"))
         (Const "two" []))),
-    ("main", (["x", "y"], Const "pair" [Var "x", Var "y"]))
+    ("opair", (["x", "y"], Const "pair"
+        [ Const "pair" [Var "x", Var "x"],
+          Const "pair" [Var "x", Var "y"]])),
+    ("succ", (["x"], Union (Const "pair" [Var "x", Const "pair" [Var "x", Var "x"]]))),
+    ("main", ([], Const "opair"
+        [Const "two" [],
+         Const "succ" [Const "two" []]]))
     ]
 
 main :: IO ()
 main = do
     -- input <- readLn
-    print (run test [empty, empty])
+    print $ (fromSet (run test []) :: (Int, Int))

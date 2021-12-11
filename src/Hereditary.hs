@@ -1,4 +1,6 @@
-module Hereditary (Set, (∈), (⊆), empty, power, true, replace, specification, union) where
+module Hereditary (Set, (∈), (⊆),
+    empty, power, true, replace, specification, union,
+    Encodable, fromSet) where
 import Data.Function (on)
 import Data.List (isSubsequenceOf, subsequences, nub)
 import Control.Monad (filterM)
@@ -53,3 +55,21 @@ replace f x = fromList . nub <$> mapM f (elements x)
 
 specification :: (Monad m) => (Set -> m Bool) -> Set -> m Set
 specification p x = fromList <$> filterM p (elements x)
+
+-- Pretty printer.
+class Encodable a where
+    fromSet :: Set -> a
+
+instance Encodable Int where
+    fromSet = length . elements
+
+instance (Encodable a, Encodable b) => Encodable (a, b) where
+    -- {{x}, {x, y}}
+    fromSet x = let elems = elements x in
+        if length elems == 1 then -- singleton
+            let u = head (elements (head elems)) in (fromSet u, fromSet u)
+        else
+            let [u, v] = elems in
+            let [x1] = elements u in
+            let [x2] = filter (/= x1) (elements v) in
+                (fromSet x1, fromSet x2)
