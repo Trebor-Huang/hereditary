@@ -11,6 +11,7 @@ data Term
     | Power Term
     | Eq Term Term
     | Elem Term Term
+    | If Term Term Term
     | Spec VarName Term Term
     | Repl VarName Term Term
     deriving (Show, Eq, Read)
@@ -48,6 +49,12 @@ eval env (Elem x y) = do
     x' <- eval env x
     y' <- eval env y
     return (if x' ∈ y' then true else empty)
+eval env (If b x y) = do
+    b' <- eval env b
+    if b' /= empty then
+        eval env x
+    else
+        eval env y
 eval env (Spec v pred x) = do
     x' <- eval env x
     specification (\z -> (/= empty) <$> update (v, z) (eval env pred)) x'
