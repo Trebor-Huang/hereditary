@@ -6,22 +6,21 @@ cabal-version: 1.12
 
 name:           hereditary
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/hereditary#readme>
-homepage:       https://github.com/githubuser/hereditary#readme
-bug-reports:    https://github.com/githubuser/hereditary/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2021 Author name here
+description:    Set theory based esolang.
+homepage:       https://github.com/Trebor-Huang/hereditary#readme
+bug-reports:    https://github.com/Trebor-Huang/hereditary/issues
+author:         Trebor Huang
+maintainer:     treborhuang@foxmail.com
+copyright:      2021 Trebor Huang
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/hereditary
+  location: https://github.com/Trebor-Huang/hereditary
 
 library
   exposed-modules:
