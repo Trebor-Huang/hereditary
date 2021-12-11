@@ -68,5 +68,5 @@ type Program = [(ConstName, ([VarName], Term))]
 
 run :: Program -> [Set] -> Set
 run p input = case lookup "main" p of
-  Nothing -> error "\"main\" function not found."
-  Just (vs, main) -> runReader (eval p main) (zip vs input)
+    Nothing -> error "\"main\" function not found."
+    Just (vs, main) -> runReader (eval p main) (zip vs input)

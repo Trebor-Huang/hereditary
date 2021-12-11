@@ -1,5 +1,7 @@
 import SetFuck
 import Hereditary
+import Parser
+import Text.ParserCombinators.ReadP (readP_to_S)
 
 test :: Program
 test = [
@@ -17,7 +19,10 @@ test = [
          Const "succ" [Const "two" []]]))
     ]
 
+source = "succ( x== y,opair())"
+
 main :: IO ()
 main = do
     -- input <- readLn
-    print $ (fromSet (run test []) :: (Int, Int))
+    -- print $ (fromSet (run test []) :: (Int, Int))
+    print(readP_to_S term source)

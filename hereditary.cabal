@@ -26,6 +26,7 @@ library
   exposed-modules:
       Hereditary
       Lib
+      Parser
       SetFuck
   other-modules:
       Paths_hereditary
