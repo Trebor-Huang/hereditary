@@ -1,4 +1,4 @@
-module Hereditary (Set, (∈), (⊆), empty, power, true, replace, specification) where
+module Hereditary (Set, (∈), (⊆), empty, power, true, replace, specification, union) where
 import Data.Function (on)
 import Data.List (isSubsequenceOf, subsequences, nub)
 import Control.Monad (filterM)
