@@ -1,9 +1,9 @@
 module Hereditary (Set, (∈), (⊆), empty, power, true, replace, specification) where
 import Data.Function (on)
-import Data.List (isSubsequenceOf, subsequences)
+import Data.List (isSubsequenceOf, subsequences, nub)
 import Control.Monad (filterM)
 
-newtype Set = FromNat Integer deriving Eq
+newtype Set = FromNat Integer deriving (Eq, Read)
 toNat :: Set -> Integer
 toNat (FromNat x) = x
 
@@ -46,7 +46,7 @@ true :: Set
 true = power empty
 
 replace :: (Monad m) => (Set -> m Set) -> (Set -> m Set)
-replace f x = fromList <$> mapM f (elements x)
+replace f x = fromList . nub <$> mapM f (elements x)
 
 specification :: (Monad m) => (Set -> m Bool) -> Set -> m Set
 specification p x = fromList <$> filterM p (elements x)
