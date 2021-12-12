@@ -49,7 +49,30 @@ snd(p) = if(toBoolean(singleton(p)),
     Union(Union(p)),
     Union({ y : Union(p) | (y == fst(p)) == zero() })) ;
 
+# exists(x, p) cannot be implemented as first-class
+# because p is a predicate, not a set.
+# exists(x, p) = toBoolean({ y : x | p(x) })
 # As an exercise, implement big Intersection.
 # Left for the reader.
 
-main() = fst(opair(three(), two()));
+# cartesian product.
+# r = {{xx}, {xx, yy}}
+# xx, yy :: union(x, y)
+# {xx}, {xx, yy} :: Power(union(x, y))
+# {{xx}, {xx, yy}} :: Power(Power(union(x, y)))
+cart(x, y) = { r : Power(Power(union(x, y))) |
+    toBoolean( { xx : x | toBoolean( { yy : y | r == opair(xx, yy) } ) } ) };
+
+# function is encoded the set theoretic way.
+dom(f) = { fst(p) | p : f } ;
+rng(f) = { snd(p) | p : f } ;
+
+# tabulate(f, d) = { opair(x, f(x)) | x : d }
+NOT() = { opair(x, not(x)) | x : two() } ;
+
+app(f, x) = Union({ y : rng(f) | opair(x, y) :: f }) ;
+
+# quotient set
+# quot(x, r) = { { z : x | r(z, y) } | y : x }
+
+main() = cart(two(), two());
