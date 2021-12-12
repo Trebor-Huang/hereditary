@@ -33,11 +33,11 @@ updates = foldr ((.) . update) id
 eval :: [(ConstName, ([VarName], Term))] -> Term -> Reader [(VarName, Set)] Set
 eval env (Var v) = do
     x <- asks $ lookup v
-    maybe (error "Unknown variable") return x
+    maybe (error $ "Unknown variable: " ++ v) return x
 eval env (Const c ts) = do
     let t = lookup c env
     case t of
-      Nothing -> error "Unknown constant"
+      Nothing -> error $ "Unknown constant: " ++ c
       Just (vs, tm) -> do
           xs <- mapM (eval env) ts
           updates (zip vs xs) $ eval env tm
