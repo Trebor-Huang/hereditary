@@ -10,6 +10,7 @@ data Term
     | Empty
     | Power Term
     | Union Term
+    | Pair Term Term
     | Eq Term Term
     | Elem Term Term
     | If Term Term Term
@@ -43,6 +44,7 @@ eval env (Const c ts) = do
 eval env Empty = return empty
 eval env (Power x) = power <$> eval env x
 eval env (Union x) = union <$> eval env x
+eval env (Pair x y) = pair <$> eval env x <*> eval env y
 eval env (Eq x y) = do
     x' <- eval env x
     y' <- eval env y

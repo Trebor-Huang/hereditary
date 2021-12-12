@@ -1,5 +1,5 @@
 module Hereditary (Set, (∈), (⊆),
-    empty, power, true, replace, specification, union,
+    empty, power, true, replace, specification, union, pair,
     Encodable, fromSet) where
 import Data.Function (on)
 import Data.List (isSubsequenceOf, subsequences, nub, sort)
@@ -56,6 +56,9 @@ union = fromList . nub . concatMap elements . elements
 
 true :: Set
 true = power empty
+
+pair :: Set -> Set -> Set
+pair x y = fromList [x, y]
 
 replace :: (Monad m) => (Set -> m Set) -> (Set -> m Set)
 replace f x = fromList . nub <$> mapM f (elements x)

@@ -9,8 +9,7 @@ import SetFuck
 Term ::= IDENT
        | IDENT "(" ((Term ",")* Term)? ")"
        | Term "==" Term
-       | Term "in" Term  -- These two infixes need special casing
-       | "if" Term "then" Term "else" Term "end"
+       | Term "::" Term  -- These two infixes need special casing
        | "{" IDENT ":" TERM "|" TERM "}"  -- Spec
        | "{" TERM "|" IDENT ":" TERM "}"  -- Repl
 IDENT ::= [a-zA-Z_][a-zA-Z0-9_]*
@@ -18,22 +17,19 @@ IDENT ::= [a-zA-Z_][a-zA-Z0-9_]*
 
 skipComment :: ReadP ()
 skipComment = do
-    skipSpaces
-    skipMany (char '#' >> manyTill (satisfy (const True)) (char '\n'))
+    skipMany (skipSpaces >> char '#' >> manyTill (satisfy (const True)) (char '\n'))
     skipSpaces
 
 ident :: ReadP String
 ident = do
     c <- satisfy (\c -> isAlpha c || c == '_')
     cs <- munch (\c -> isAlphaNum c || c == '_')
-    if (c:cs) == "in" || (c:cs) == "if" || (c:cs) == "then" || (c:cs) == "else" || (c:cs) == "end"
-        then pfail
-    else return (c:cs)
+    return (c:cs)
 
 -- "in" binds tighter than "=="
 noEq :: ReadP Term
 noEq = do
-    ts <- sepBy1 noinfix (skipComment >> string "in")
+    ts <- sepBy1 noinfix (skipComment >> string "::")
     return (foldl1 Elem ts)
 
 term :: ReadP Term
@@ -59,19 +55,6 @@ noinfix = do
         char ')'
         return (Const c ts)
     <++ (skipComment >> Var <$> ident)
-    <++ do
-        skipComment
-        string "if"
-        t1 <- term
-        skipComment
-        string "then"
-        t2 <- term
-        skipComment
-        string "else"
-        t3 <- term
-        skipComment
-        string "end"
-        return (If t1 t2 t3)
     <++ do
         skipComment
         string "{"

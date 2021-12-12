@@ -1,38 +1,55 @@
 # Example setfuck file.
-# Todo move prelude here, keep only the primitives in haskell.
+# Empty() denotes the empty set {}.
 
-# Since we have encoded zero() and succ(x) in prelude,
-# it is easy to do some arithmetic.
-pred(x) = Union(x);
+zero() = Empty();
+false() = Empty();
 
-add(x, y) =
-if x == zero() then
-    y
-else
-    succ(add(pred(x), y))
-end;
+# Power(x) denotes the set of all subsets of x.
+# For instance, Power({}) = {{}}.
+one() = Power(zero());
+true() = one();
 
-mult(x, y) =
-if x == zero() then
-    zero()
-else
-    add(mult(pred(x), y), y)
-end;
+# (==) is used to compare equality.
+# On boolean functions it becomes the xor operator.
+xor(x, y) = x == y;
+not(x) = x == false();
+toBoolean(x) = not(not(x));  # the usual trick, also seen in C or javascript or stuff
 
-# This is valid since we allow general recursion anyway.
-atom() = pair(atom(), atom());
+# "in" is used to test set membership.
+# On boolean values it becomes...
+impl(x, y) = x :: y;
+or(x, y) = impl(not(x), y);
+and(x, y) = not(impl(x, not(y)));
+
+# Pair(x, y) is the set {x, y}.
+single(x) = Pair(x, x);
+
+# Kuratowski pairs.
+opair(x, y) = Pair(Pair(x, x), Pair(x, y));
+
+# Union(x) is the union of the elements in x. Equivalent to Haskell "join".
+union(x, y) = Union(Pair(x, y));
+succ(x) = union(x, single(x));
+two() = succ(one());
+three() = succ(two());
 
 # Axiom of specification:
 # If x is a set, then { y : x | P(y) } is a set, where P is a predicate.
-subsingleton(x) = { y : x | x == pair(y,y) } == x ;
-singleton(x) = { y : x | x == pair(y,y) } ;
+# Equivalent to Haskell "filter".
+singleton(x) = { y : x | x == single(y) };  # returns x if it is singleton, {} otherwise
 
-# opair(x, y) = {{x}, {x, y}}
+intersect(x, y) = { z : union(x, y) | and(z :: x, z :: y) } ;
+
 # Axiom of replacement:
 # If x is a set, then { F(y) | y : x } is a set, where F is an arbitrary term.
-fst(p) = Union(Union({ singleton(r) | r : p }));
-snd(p) = if singleton(p) then Union(Union(p)) else
-    Union({ y : Union(p) | (y == fst(p)) == zero() })
-end;
+if(p, x, y) = Union(union({ x | _ : p }, { y | _ : not(p)})) ;
 
-main() = snd(opair(zero(), zero()));
+fst(p) = Union(Union({ singleton(r) | r : p }));
+snd(p) = if(toBoolean(singleton(p)),
+    Union(Union(p)),
+    Union({ y : Union(p) | (y == fst(p)) == zero() })) ;
+
+# As an exercise, implement big Intersection.
+# Left for the reader.
+
+main() = fst(opair(three(), two()));
