@@ -58,7 +58,7 @@ true :: Set
 true = power empty
 
 pair :: Set -> Set -> Set
-pair x y = fromList [x, y]
+pair x y = fromList $ nub [x, y]
 
 replace :: (Monad m) => (Set -> m Set) -> (Set -> m Set)
 replace f x = fromList . nub <$> mapM f (elements x)
