@@ -1,4 +1,6 @@
 # Example setfuck file.
+# Todo move prelude here, keep only the primitives in haskell.
+
 # Since we have encoded zero() and succ(x) in prelude,
 # it is easy to do some arithmetic.
 pred(x) = Union(x);
@@ -17,4 +19,20 @@ else
     add(mult(pred(x), y), y)
 end;
 
-main() = succ(succ(succ(two())));
+# This is valid since we allow general recursion anyway.
+atom() = pair(atom(), atom());
+
+# Axiom of specification:
+# If x is a set, then { y : x | P(y) } is a set, where P is a predicate.
+subsingleton(x) = { y : x | x == pair(y,y) } == x ;
+singleton(x) = { y : x | x == pair(y,y) } ;
+
+# opair(x, y) = {{x}, {x, y}}
+# Axiom of replacement:
+# If x is a set, then { F(y) | y : x } is a set, where F is an arbitrary term.
+fst(p) = Union(Union({ singleton(r) | r : p }));
+snd(p) = if singleton(p) then Union(Union(p)) else
+    Union({ y : Union(p) | (y == fst(p)) == zero() })
+end;
+
+main() = snd(opair(zero(), zero()));
