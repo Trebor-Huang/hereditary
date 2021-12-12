@@ -27,3 +27,9 @@ The builtin constants are:
 - `Power(x)` : powerset.
 
 There are only sets in the language, booleans are represented by `false = {}` and `true = {{}}`.
+
+## Build
+Run `git clone` and `stack build` to build the executable.
+`stack run -- file.sf` interprets a `.sf` file.
+
+Issues and pull requests are welcome!
