@@ -17,7 +17,7 @@ toBoolean(x) = not(not(x));  # the usual trick, also seen in C or javascript or 
 
 # "in" is used to test set membership.
 # On boolean values it becomes...
-impl(x, y) = x :: y;
+impl(x, y) = not(y :: x);
 or(x, y) = impl(not(x), y);
 and(x, y) = not(impl(x, not(y)));
 
