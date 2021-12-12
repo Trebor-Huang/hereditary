@@ -19,7 +19,9 @@ ident :: ReadP String
 ident = do
     c <- satisfy (\c -> isAlpha c || c == '_')
     cs <- munch (\c -> isAlphaNum c || c == '_')
-    return (c:cs)
+    if (c:cs) == "in" || (c:cs) == "if" || (c:cs) == "then" || (c:cs) == "else"
+        then pfail
+    else return (c:cs)
 
 -- "in" binds tighter than "=="
 noEq :: ReadP Term
