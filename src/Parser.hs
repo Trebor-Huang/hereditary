@@ -19,11 +19,8 @@ IDENT ::= [a-zA-Z_][a-zA-Z0-9_]*
 skipComment :: ReadP ()
 skipComment = do
     skipSpaces
-    do
-        char '#'
-        manyTill (satisfy (const True)) (char '\n')
-        return ()
-    <++ return ()
+    skipMany (char '#' >> manyTill (satisfy (const True)) (char '\n'))
+    skipSpaces
 
 ident :: ReadP String
 ident = do
@@ -72,6 +69,7 @@ noinfix = do
         skipComment
         string "else"
         t3 <- term
+        skipComment
         string "end"
         return (If t1 t2 t3)
     <++ do
@@ -88,7 +86,7 @@ noinfix = do
         skipComment
         string "}"
         return (Spec c t2 t1)
-    <++ do
+    +++ do
         skipComment
         string "{"
         t1 <- term

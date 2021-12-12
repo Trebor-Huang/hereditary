@@ -1,0 +1,20 @@
+# Example setfuck file.
+# Since we have encoded zero() and succ(x) in prelude,
+# it is easy to do some arithmetic.
+pred(x) = Union(x);
+
+add(x, y) =
+if x == zero() then
+    y
+else
+    succ(add(pred(x), y))
+end;
+
+mult(x, y) =
+if x == zero() then
+    zero()
+else
+    add(mult(pred(x), y), y)
+end;
+
+main() = succ(succ(succ(two())));
