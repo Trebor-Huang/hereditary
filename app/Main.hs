@@ -3,6 +3,14 @@ module Main where
 import SetFuck
 import Parser
 import Text.ParserCombinators.ReadP (readP_to_S)
+import System.Environment (getArgs)
+
+usage :: String
+usage = unlines [
+    "Usage:",
+    "  setfuck [file]",
+    "Interpretes the file as a setfuck program.",
+    "If no file is given, reads on stdin."]
 
 prelude :: Program
 prelude = [
@@ -21,8 +29,12 @@ prelude = [
 
 main :: IO ()
 main = do
-    -- Read everything until EOF
-    input <- getContents
+    args <- getArgs
+    input <- if null args then do
+        putStrLn usage
+        getContents
+    else do
+        readFile (head args)
     let res = readP_to_S program input
     case filter ((== "") . snd) res of
         [] -> putStrLn "No program found" >> print res

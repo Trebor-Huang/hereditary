@@ -4,91 +4,102 @@ import Data.Char (isAlpha, isAlphaNum)
 import SetFuck
 
 -- A parser for a term
+-- # starts a line of comments
 {-
 Term ::= IDENT
        | IDENT "(" ((Term ",")* Term)? ")"
        | Term "==" Term
        | Term "in" Term  -- These two infixes need special casing
-       | "if" Term "then" Term "else" Term
+       | "if" Term "then" Term "else" Term "end"
        | "{" IDENT ":" TERM "|" TERM "}"  -- Spec
        | "{" TERM "|" IDENT ":" TERM "}"  -- Repl
 IDENT ::= [a-zA-Z_][a-zA-Z0-9_]*
 -}
 
+skipComment :: ReadP ()
+skipComment = do
+    skipSpaces
+    do
+        char '#'
+        manyTill (satisfy (const True)) (char '\n')
+        return ()
+    <++ return ()
+
 ident :: ReadP String
 ident = do
     c <- satisfy (\c -> isAlpha c || c == '_')
     cs <- munch (\c -> isAlphaNum c || c == '_')
-    if (c:cs) == "in" || (c:cs) == "if" || (c:cs) == "then" || (c:cs) == "else"
+    if (c:cs) == "in" || (c:cs) == "if" || (c:cs) == "then" || (c:cs) == "else" || (c:cs) == "end"
         then pfail
     else return (c:cs)
 
 -- "in" binds tighter than "=="
 noEq :: ReadP Term
 noEq = do
-    ts <- sepBy1 noinfix (skipSpaces >> string "in")
+    ts <- sepBy1 noinfix (skipComment >> string "in")
     return (foldl1 Elem ts)
 
 term :: ReadP Term
 term = do
-    ts <- sepBy1 noEq (skipSpaces >> string "==")
+    ts <- sepBy1 noEq (skipComment >> string "==")
     return (foldl1 Eq ts)
 
 noinfix :: ReadP Term
 noinfix = do
-        skipSpaces
+        skipComment
         char '('
         t <- term
-        skipSpaces
+        skipComment
         char ')'
         return t
     <++ do
-        skipSpaces
+        skipComment
         c <- ident
-        skipSpaces
+        skipComment
         char '('
-        ts <- sepBy term (skipSpaces >> char ',')
-        skipSpaces
+        ts <- sepBy term (skipComment >> char ',')
+        skipComment
         char ')'
         return (Const c ts)
-    <++ (skipSpaces >> Var <$> ident)
+    <++ (skipComment >> Var <$> ident)
     <++ do
-        skipSpaces
+        skipComment
         string "if"
         t1 <- term
-        skipSpaces
+        skipComment
         string "then"
         t2 <- term
-        skipSpaces
+        skipComment
         string "else"
         t3 <- term
+        string "end"
         return (If t1 t2 t3)
     <++ do
-        skipSpaces
+        skipComment
         string "{"
-        skipSpaces
+        skipComment
         c <- ident
-        skipSpaces
+        skipComment
         string ":"
         t1 <- term
-        skipSpaces
+        skipComment
         string "|"
         t2 <- term
-        skipSpaces
+        skipComment
         string "}"
         return (Spec c t2 t1)
     <++ do
-        skipSpaces
+        skipComment
         string "{"
         t1 <- term
-        skipSpaces
+        skipComment
         string "|"
-        skipSpaces
+        skipComment
         c <- ident
-        skipSpaces
+        skipComment
         string ":"
         t2 <- term
-        skipSpaces
+        skipComment
         string "}"
         return (Repl c t1 t2)
 
@@ -99,25 +110,21 @@ Declare ::= IDENT "(" ((IDENT ",")* IDENT)? ")" "=" Term
 
 declare :: ReadP (ConstName, ([ConstName], Term))
 declare = do
-    skipSpaces
+    skipComment
     c <- ident
-    skipSpaces
+    skipComment
     char '('
-    cs <- sepBy (skipSpaces >> ident) (skipSpaces >> char ',')
-    skipSpaces
+    cs <- sepBy (skipComment >> ident) (skipComment >> char ',')
+    skipComment
     char ')'
-    skipSpaces
+    skipComment
     char '='
     t <- term
     return (c, (cs, t))
 
 program :: ReadP Program
 program = do 
-    p <- many (do
-        d <- declare
-        skipSpaces
-        char ';'
-        return d)
-    skipSpaces
+    p <- endBy declare (skipComment >> char ';')
+    skipComment
     eof
     return p
