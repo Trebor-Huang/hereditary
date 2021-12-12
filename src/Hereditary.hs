@@ -2,15 +2,15 @@ module Hereditary (Set, (∈), (⊆),
     empty, power, true, replace, specification, union,
     Encodable, fromSet) where
 import Data.Function (on)
-import Data.List (isSubsequenceOf, subsequences, nub)
+import Data.List (isSubsequenceOf, subsequences, nub, sort)
 import Control.Monad (filterM)
 
+-- The following is an elegant but *very* inefficient version using
+-- von Neumann encoding.
+{-
 newtype Set = FromNat Integer deriving (Eq, Read)
 toNat :: Set -> Integer
 toNat (FromNat x) = x
-
-imply :: Bool -> Bool -> Bool
-imply a b = b || not a
 
 (∈) :: Set -> Set -> Bool
 FromNat n ∈ FromNat m
@@ -26,6 +26,18 @@ elements (FromNat n) = map (FromNat . fst) $ filter snd $ zip [0..] $ toBinary n
 
 fromList :: [Set] -> Set
 fromList = FromNat . sum . map ((2^) . toNat)
+-}
+
+newtype Set = FromList [Set] deriving (Eq, Read, Ord)
+elements :: Set -> [Set]
+elements (FromList e) = e
+
+(∈) :: Set -> Set -> Bool
+x ∈ y = x `elem` elements y
+
+-- The following does not involve internal representations.
+-- So the two versions both work.
+fromList = FromList . sort
 
 instance Show Set where
     show x = "{" ++ unwords (map show (elements x)) ++ "}"
@@ -34,12 +46,7 @@ instance Show Set where
 (⊆) = isSubsequenceOf `on` elements
 
 empty :: Set
-empty = FromNat 0
-
--- | Ad-hoc bounded comprehension.
-comprehension :: Integer -> (Set -> Bool) -> Set
-comprehension bound pred = FromNat $ sum $ map (2^)
-    $ filter (pred . FromNat) [0..bound]
+empty = fromList []
 
 power :: Set -> Set
 power = fromList . map fromList . subsequences . elements
